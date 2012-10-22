@@ -8,9 +8,9 @@
 class Router extends Backbone.Router
   routes:
     ':slug':    'editor'
-    '':         'gallery'
+    '':         'editor'
 
-  editor: (slug) ->
+  editor: (slug="") ->
     editor = new Editor(pxl: slug)
     $("#app").html editor.el
     editor.render()
@@ -156,7 +156,7 @@ class Editor extends Backbone.View
     @$(".remove-link").toggle(@frames.length > 1)
     @$(".next-link").toggle(@frames.length > 1)
     @$(".previous-link").toggle(@frames.length > 1)
-    @$(".add-link").toggle(@frames.length < 16)
+    @$(".add-link").toggle(@frames.length < PXL.max_num_frames)
 
     @$(".frame-num").html(@current_frame + 1)
     @$(".frame-total").html(@frames.length)

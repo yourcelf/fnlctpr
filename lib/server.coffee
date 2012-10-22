@@ -17,9 +17,6 @@ start = (options) ->
 
   app.set 'view engine', 'jade'
 
-  app.get '/', (req, res) ->
-    res.render 'index', title: "PxlShp", slug: ""
-
   app.get /([-0-9A-Za-z_~]+)\.gif/, (req, res) ->
     code = serialize.normalize_pxl(req.params[0])
     path = "gifs/#{code}.gif"
@@ -29,6 +26,9 @@ start = (options) ->
         create_gif.create_gif(code, path, send)
       else
         send()
+
+  app.get '/', (req, res) ->
+    res.render 'index', title: "PxlShp", slug: ""
 
   app.get /([-0-9A-Za-z_~]+)/, (req, res) ->
     res.render 'index', title: req.params[0], slug: req.params[0]
