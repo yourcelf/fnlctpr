@@ -1,0 +1,62 @@
+// Mixins
+@import "normalize.css"
+@import "buttons.css"
+@import "flash.styl"
+
+border-box()
+  -webkit-box-sizing: border-box
+  -moz-box-sizing: border-box
+  box-sizing: border-box
+
+user-select()
+  -webkit-touch-callout: none
+  -webkit-user-select: none
+  -khtml-user-select: none
+  -moz-user-select: none
+  -ms-user-select: none
+  user-select: none
+
+
+.canvas, .canvas *
+  border-box()
+  user-select()
+
+.editor
+  display: inline-block
+
+.nav
+  .previous-link
+    float: left
+  .next-link
+    float: right
+.add-drop
+  .add-link
+    float: right
+  .remove-link
+    float: left
+
+.canvas
+  height: 400px
+  width: 400px
+  .pixel
+    border: 1px solid #ddd
+    width: 6.25%
+    height: 100%
+    float: left
+    &.active
+      background-color: black
+  .row
+    width: 100%
+    height: 6.25%
+    clear: both
+
+.preview-holder
+  .canvas
+    height: 32px
+    width: 32px
+    display: inline-block
+    border: 1px solid #ddd
+    .pixel
+      border: none
+    &.current
+      background-color: #ffd

@@ -1,0 +1,29 @@
+doctype 5
+html(lang="en")
+  head
+    meta(http-equiv="Content-Type", content="text/html; charset=utf-8")
+    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
+    meta(name="apple-mobile-web-app-capable", content="yes")
+
+    <!--link(rel='shortcut icon', href="/favicon.ico")-->
+    title= title
+    !=css('normalize')
+    !=css('style')
+
+  body
+    div#page
+      noscript
+        :markdown
+          This site depends on javascript and cookies, thoroughly and completely.
+          Please enable and allow scripts from this site in order to use it.  If your
+          device does not support javascript, our apologies -- feel free to contact us
+          at cfd@media.mit.edu and we will consider adding support for your device.
+        
+          For the security conscious, the full javascript source code for this site
+          is freely available at https://github.com/yourcelf/dotstorm if you'd like
+          to examine it.
+      div#flash
+      div#app
+
+    !=js('frontend')
+    include analytics.html

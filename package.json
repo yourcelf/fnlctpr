@@ -1,0 +1,31 @@
+{
+    "name": "pxlshp",
+    "version": "0.0.1",
+    "description": "Pxl. Shp.",
+    "author": {
+        "name": "Charlie DeTar",
+        "email": "cfd@media.mit.edu"
+    },
+    "scripts": {
+        "test": "mocha --compilers coffee:coffee-script --globals css,js,img spec/*.spec.coffee"
+    },
+    "engines": {
+        "node": ">=0.8"
+    },
+    "dependencies": {
+        "coffee-script": "~1",
+        "connect-assets": "~2",
+        "snockets": "~1.3",
+        "stylus": "~0",
+        "connect": "~1",
+        "connect-redis": "~1",
+        "express": "~2",
+        "jade": "~0",
+        "markdown": "*",
+        "imagemagick": "~0"
+    },
+    "devDependencies": {
+        "mocha": "~1",
+        "expect.js": "~0.1"
+    }
+}
