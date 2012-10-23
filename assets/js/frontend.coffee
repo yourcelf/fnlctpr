@@ -2,6 +2,7 @@
 #= require vendor/underscore
 #= require vendor/underscore-autoescape
 #= require vendor/backbone
+#= require vendor/jquery-ui-1.9.0.custom
 #= require flash
 #= require serialize_pixel
 
@@ -73,26 +74,38 @@ class Canvas extends Backbone.View
 
 editor_template = "
 <div class='editor'>
-  <h1>Frame
-    <span class='frame-num'></span> /
-    <span class='frame-total'></span>
-  </h1>
-  <div class='nav'>
-    <a href='#' class='previous-link cta cta-green'>Previous</a>
-    <a href='#' class='next-link cta cta-green'>Next</a>
-    <div style='clear: both;'></div>
+  <div class='left-side'>
+    <div class='nav'>
+      <ul>
+        <li><a href='#' class='previous-link cta cta-green'>Previous</a></li>
+        <li>
+          <div style='padding-top: 16px'>
+            Frame
+            <span class='frame-num'></span> /
+            <span class='frame-total'></span>
+          </div>
+        </li>
+        <li>
+          <a href='#' class='next-link cta cta-green'>Next</a>
+        </li>
+      </ul>
+      <div style='clear: both;'></div>
+    </div>
+    <div class='canvas-holder'></div>
+    <div class='add-drop'>
+      <a href='#' class='remove-link cta cta-red'>Remove frame</a>
+      <a href='#' class='add-link cta cta-blue'>Add frame</a>
+      <div style='clear: both;'></div>
+    </div>
   </div>
-  <div class='canvas-holder'></div>
-  <div class='add-drop'>
-    <a href='#' class='remove-link cta cta-red'>Remove frame</a>
-    <a href='#' class='add-link cta cta-blue'>Add frame</a>
-    <div style='clear: both;'></div>
+  <div class='right-side'>
+    <div class='preview-holder'>
+      <div class='frames'></div>
+      <a class='permalink' href='<%= slug %>.gif'>GET GIF</a>
+      <div class='animation'></div>
+    </div>
   </div>
-  <div class='preview-holder'>
-    <div class='frames'></div>
-    <div class='animation'></div>
-    <a class='permalink' href='<%= slug %>.gif'>GET GIF</a>
-  </div>
+  <div style='clear: both;'></div>
 </div>
 "
 
@@ -130,15 +143,13 @@ class Editor extends Backbone.View
     #
     # Preview frames
     #
-    for frame, i in @frames
+    for frame in @frames
       canvas = new Canvas(frame: frame)
       @preview_canvases.push(canvas)
       @$(".frames").append(canvas.el)
       canvas.render()
-      do (i) =>
-        canvas.on "change", =>
-          if i == @current_frame
-            @canvas.render()
+      canvas.on "change", =>
+        @canvas.render()
 
     @canvas.on "change", =>
       @update_url()
@@ -148,14 +159,27 @@ class Editor extends Backbone.View
     #
     @set_frame(@current_frame)
 
+    #
+    # Set up auto sizing
+    #
+    resize = =>
+      max_height = $(window).height()
+      max_width = $(window).width()
+      max_canvas_height = max_height - @$(".add-drop").height() - @$(".nav").height()
+      max_canvas_width  = max_width - @$(".right-side").width()
+      target_height = Math.max(288, Math.min(max_canvas_height, max_canvas_width) - 5)
+      @$(".canvas-holder").height(target_height).width(target_height)
+    setTimeout(resize, 100)
+    $(window).on("resize", resize)
+
 
   set_frame: (frame_num) =>
+    if frame_num != @current_frame
+      @$(".nav li").effect("highlight")
     @preview_canvases[@current_frame]?.$el.removeClass("current")
     @current_frame = frame_num
 
-    @$(".remove-link").toggle(@frames.length > 1)
-    @$(".next-link").toggle(@frames.length > 1)
-    @$(".previous-link").toggle(@frames.length > 1)
+    @$(".next-link, .previous-link, .remove-link").toggleClass("cta-disabled", @frames.length <= 1)
     @$(".add-link").toggle(@frames.length < PXL.max_num_frames)
 
     @$(".frame-num").html(@current_frame + 1)

@@ -2,6 +2,7 @@
 @import "normalize.css"
 @import "buttons.css"
 @import "flash.styl"
+@import "nib"
 
 border-box()
   -webkit-box-sizing: border-box
@@ -16,28 +17,59 @@ user-select()
   -ms-user-select: none
   user-select: none
 
-
-.canvas, .canvas *
+*
   border-box()
   user-select()
 
 .editor
   display: inline-block
+  .left-side, .right-side
+    float: left
+  .right-side
+    width: 40px
+    a
+      height: 32px
+      width: 32px
+      margin-bottom: 5px
+      color: white
+      font-weight: bold
+      font-size: 70%
+      text-shadow: 1px 0px #333
+      background: #999
+      background: linear-gradient(top, #999, #aaa)
+      box-shadow: 1px 1px #ccc
+      border-radius: 5px
+      text-decoration: none
+      display: block
+      text-align: center
+
 
 .nav
-  .previous-link
+  ul
+    margin: 0
+    padding: 0
+  li
+    height: 54px
     float: left
-  .next-link
-    float: right
+    width: 33%
+    list-style-type: none
+    text-align: center
+    margin: 0
+    padding: 0
+    a
+      width: 100%
 .add-drop
   .add-link
     float: right
   .remove-link
     float: left
 
+.canvas-holder
+  position: relative
+
 .canvas
-  height: 400px
-  width: 400px
+  height: 100%
+  width: 100%
   .pixel
     border: 1px solid #ddd
     width: 6.25%

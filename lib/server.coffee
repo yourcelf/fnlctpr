@@ -28,7 +28,7 @@ start = (options) ->
         send()
 
   app.get '/', (req, res) ->
-    res.render 'index', title: "PxlShp", slug: ""
+    res.render 'index', title: "FnlCutPr", slug: ""
 
   app.get /([-0-9A-Za-z_~]+)/, (req, res) ->
     res.render 'index', title: req.params[0], slug: req.params[0]

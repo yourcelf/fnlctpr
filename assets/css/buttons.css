@@ -190,3 +190,16 @@
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorStr='#ff9900', EndColorStr='#ffcc00');
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ff9900', EndColorStr='#ffcc00')";
 }
+.cta-disabled, .cta-disabled:active, .cta-disabled:hover {
+    color: #999;
+    cursor: auto;
+    background: #999;
+    pointer-events: none;
+    background: -webkit-gradient(linear, left top, left bottom, from(#777), to(#999));
+    background: -moz-linear-gradient(top, #777, #999);
+    background: -ms-linear-gradient(top, #777, #999);
+    background: -o-linear-gradient(top, #777, #999);
+    background: linear-gradient(top, #777, #999);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorStr='#777', EndColorStr='#999');
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#777', EndColorStr='#999')";
+}
