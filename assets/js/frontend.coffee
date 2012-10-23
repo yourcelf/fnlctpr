@@ -36,9 +36,9 @@ class Canvas extends Backbone.View
   template: _.template(canvas_template)
   events:
     'touchstart .pixel': 'start'
+    'touchmove .pixel':  'draw'
     'mousedown .pixel':  'start'
     'mouseover .pixel':  'draw'
-    'touchmove .pixel':  'draw'
 
   initialize: (options={}) ->
     @frame = options.frame
@@ -59,6 +59,8 @@ class Canvas extends Backbone.View
     el.toggleClass("active", @_operation)
 
   start: (event) =>
+    if event.type == "touchstart"
+      @is_touch = true
     el = $(event.currentTarget)
     @_operation = not el.hasClass("active")
     @toggle_bit(el)
@@ -69,15 +71,24 @@ class Canvas extends Backbone.View
     @trigger "change", this
 
   draw: (event) =>
+    if @is_touch
+        if event.type == "mousemove"
+          return
+        target = document.elementFromPoint(
+            event.originalEvent.changedTouches[0].pageX,
+            event.originalEvent.changedTouches[0].pageY
+        )
+    else
+        target = event.currentTarget
     if @mouse_is_down
-      @toggle_bit($(event.currentTarget))
+      @toggle_bit($(target))
 
 editor_template = "
 <div class='editor'>
   <div class='left-side'>
     <div class='nav'>
       <ul>
-        <li><a href='#' class='previous-link cta cta-green'>Previous</a></li>
+        <li><a href='#' class='previous-link cta cta-green'>Prev</a></li>
         <li>
           <div style='padding-top: 16px'>
             Frame
@@ -93,7 +104,7 @@ editor_template = "
     </div>
     <div class='canvas-holder'></div>
     <div class='add-drop'>
-      <a href='#' class='remove-link cta cta-red'>Remove frame</a>
+      <a href='#' class='remove-link cta cta-red'>Remove</a>
       <a href='#' class='add-link cta cta-blue'>Add frame</a>
       <div style='clear: both;'></div>
     </div>
@@ -167,7 +178,7 @@ class Editor extends Backbone.View
       max_width = $(window).width()
       max_canvas_height = max_height - @$(".add-drop").height() - @$(".nav").height()
       max_canvas_width  = max_width - @$(".right-side").width()
-      target_height = Math.max(288, Math.min(max_canvas_height, max_canvas_width) - 5)
+      target_height = Math.max(280, Math.min(max_canvas_height, max_canvas_width) - 20)
       @$(".canvas-holder").height(target_height).width(target_height)
     setTimeout(resize, 100)
     $(window).on("resize", resize)
