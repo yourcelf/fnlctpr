@@ -332,9 +332,10 @@ class Editor extends Backbone.View
       type: 'POST',
       data: {id: get_query_param("id"), q: @pxl},
       success: (data) =>
-        id = parseInt(get_query_param("id"))
+        id = get_query_param("id")
+        id = parseInt(id) if id?
         data.gif += "?nocache=" + (new Date()).getTime()
-        if not id
+        if not id?
           GIFS.splice(0, 0, data)
         else
           for gif in GIFS
@@ -342,7 +343,6 @@ class Editor extends Backbone.View
               gif.q = data.q
               gif.gif = data.gif
               break
-        console.log GIFS
 
         @modal = $(@post_save_template(gif: data.gif))
         $("input", @modal).on "focus", -> $(this).select()
@@ -360,7 +360,8 @@ class Editor extends Backbone.View
     return false
 
   update_url: =>
-    id = parseInt(get_query_param("id"))
+    id = get_query_param("id")
+    id = parseInt(id) if id?
     @pxl = encode_pxl(@frames)
     url = "?q=#{@pxl}"
     if id?
