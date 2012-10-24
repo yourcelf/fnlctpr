@@ -39,26 +39,43 @@ gif_modal_template = "
     <p><a href='#' class='jqmClose'>Close</a></p>
   </div>
 "
-class Gallery extends Backbone.View
+class SquelchView extends Backbone.View
+  squelch: (event) =>
+    event.preventDefault()
+    event.stopPropagation()
+    event_is_touch = event.type.substring(0, "touch".length) == "touch"
+    if @is_touch and not event_is_touch
+      return true
+    @is_touch = event_is_touch
+    return false
+
+class Gallery extends SquelchView
   template: _.template(gallery_template)
   gif_modal_template: _.template(gif_modal_template)
   events:
     'click .gif': 'modal'
+    'touchstart .gif': 'modal'
     'click .edit': 'edit'
+    'touchstart .edit': 'edit'
     'click .fork': 'fork'
+    'touchstart .fork': 'fork'
     'click .new': 'add'
+    'touchstart .new': 'add'
 
   add: (event) =>
+    return false if @squelch(event)
     app.navigate("?q=A", trigger: true)
     return false
 
   edit: (event) =>
+    return false if @squelch(event)
     gif = GIFS[parseInt($(event.currentTarget).attr("data-index"))]
     app.navigate("?q=#{gif.q}&id=#{gif.id}", trigger: true)
     @box.jqm().jqmHide()
     return false
 
   fork: (event) =>
+    return false if @squelch(event)
     gif = GIFS[parseInt($(event.currentTarget).attr("data-index"))]
     app.navigate("?q=#{gif.q}", trigger: true)
     @box.jqm().jqmHide()
@@ -81,30 +98,33 @@ class Gallery extends Backbone.View
     }).jqmShow()
     return false
 
-canvas_template = "
-  <% for (var y = 0; y < bits.length; y++) { %>
-    <div class='row'>
-    <% for (var x = 0; x < bits[y].length; x++) { %>
-      <div class='pixel <%= bits[y][x] ? 'active' : '' %>'
-           data-x='<%= x %>' data-y='<%= y %>'></div>
-    <% } %>
-    </div>
-  <% } %>
-"
 
-class Canvas extends Backbone.View
-  template: _.template(canvas_template)
+class Canvas extends SquelchView
+  tagName: "canvas"
+  cell_size: 64
   events:
-    'touchstart .pixel': 'start'
-    'touchmove .pixel':  'draw'
-    'mousedown .pixel':  'start'
-    'mouseover .pixel':  'draw'
+    'touchstart': 'start'
+    'touchmove':  'draw'
+    'mousedown':  'start'
+    'mousemove':  'draw'
 
   initialize: (options={}) ->
     @frame = options.frame
+    @show_grid = if options.show_grid? then options.show_grid else true
+
+    # Events
     @mouse_is_down = false
     $(window).on "mouseup", @stop
     $(window).on "touchend", @stop
+
+    # Canvas
+    @height = @cell_size * PXL.height
+    @width = @cell_size * PXL.width
+    @$el.attr { width: @width, height: @height }
+    @ctx = @el.getContext('2d')
+    @ctx.strokeStyle = "#ccc"
+    @ctx.fillStyle = "#000"
+    @ctx.lineWidth = 1
 
   remove: () ->
     $(window).off "mouseup", @stop
@@ -114,39 +134,70 @@ class Canvas extends Backbone.View
     @frame = frame
     @render()
 
-  render: =>
-    @$el.addClass("canvas")
-    @$el.html @template(bits: @frame)
+  render_grid: =>
+    # cols
+    for i in [0...PXL.width]
+      @ctx.beginPath()
+      @ctx.moveTo(i * @cell_size, 0)
+      @ctx.lineTo(i * @cell_size, @height)
+      @ctx.stroke()
+    # rows 
+    for i in [0...PXL.height]
+      @ctx.beginPath()
+      @ctx.moveTo(0, i * @cell_size)
+      @ctx.lineTo(@width, i * @cell_size)
+      @ctx.stroke()
 
-  toggle_bit: (el) =>
-    @frame[parseInt(el.attr("data-y"))][parseInt(el.attr("data-x"))] = if @_operation then 1 else 0
-    el.toggleClass("active", @_operation)
+  render: =>
+    for y in [0...@frame.length]
+      for x in [0...@frame[y].length]
+        @draw_bit({x, y})
+
+  draw_bit: (coords) =>
+    @ctx.fillStyle = if @frame[coords.y][coords.x] then "black" else "white"
+    @ctx.fillRect(coords.x * @cell_size, coords.y * @cell_size, @cell_size, @cell_size)
+    if @show_grid
+      @ctx.strokeRect(coords.x * @cell_size, coords.y * @cell_size, @cell_size, @cell_size)
+
+  get_grid_pos: (event) =>
+    pos = @$el.offset()
+    width = @$el.width()
+    height = @$el.height()
+    if @is_touch
+      clientX = event.originalEvent.touches[0].clientX
+      clientY = event.originalEvent.touches[0].clientY
+    else
+      clientX = event.clientX
+      clientY = event.clientY
+    x = Math.floor((clientX - pos.left) / width * PXL.width)
+    y = Math.floor((clientY - pos.top) / height * PXL.height)
+    if x>= 0 and x < PXL.width and y >=0 and y < PXL.height
+      return {x, y}
+    return null
 
   start: (event) =>
-    if event.type == "touchstart"
-      @is_touch = true
-    el = $(event.currentTarget)
-    @_operation = not el.hasClass("active")
-    @toggle_bit(el)
+    return false if @squelch(event)
     @mouse_is_down = true
+    coords = @get_grid_pos(event)
+    if coords
+      @_operation = if @frame[coords.y][coords.x] == 0 then 1 else 0
+      @frame[coords.y][coords.x] = @_operation
+      @draw_bit(coords)
+    
 
   stop: (event) =>
+    return false if @squelch(event)
     if @mouse_is_down
       @mouse_is_down = false
       @trigger "change", this
 
   draw: (event) =>
-    if @is_touch
-        if event.type == "mousemove"
-          return
-        target = document.elementFromPoint(
-            event.originalEvent.changedTouches[0].pageX,
-            event.originalEvent.changedTouches[0].pageY
-        )
-    else
-        target = event.currentTarget
+    return false if @squelch(event)
     if @mouse_is_down
-      @toggle_bit($(target))
+      coords = @get_grid_pos(event)
+      if coords
+        @frame[coords.y][coords.x] = @_operation
+        @draw_bit(coords)
 
 editor_template = "
 <div class='editor'>
@@ -201,16 +252,22 @@ post_save_template = "
   </div>
 "
 
-class Editor extends Backbone.View
+class Editor extends SquelchView
   template: _.template(editor_template)
   post_save_template: _.template(post_save_template)
   events:
-    'click a.next-link':     'next_frame'
-    'click a.previous-link': 'prev_frame'
-    'click a.add-link':      'add_frame'
-    'click a.remove-link':   'remove_frame'
-    'click a.save-link':     'save'
-    'click a.gallery':       'gallery'
+    'click           .next-link': 'next_frame'
+    'touchstart      .next-link': 'next_frame'
+    'click       .previous-link': 'prev_frame'
+    'touchstart  .previous-link': 'prev_frame'
+    'click            .add-link': 'add_frame'
+    'touchstart       .add-link': 'add_frame'
+    'click         .remove-link': 'remove_frame'
+    'touchstart    .remove-link': 'remove_frame'
+    'click           .save-link': 'save'
+    'touchstart     a.save-link': 'save'
+    'click             .gallery': 'gallery'
+    'touchstart        .gallery': 'gallery'
 
   initialize: (options) ->
     @pxl = options.pxl
@@ -228,13 +285,15 @@ class Editor extends Backbone.View
 
   render: =>
     @$el.html @template(slug: @pxl)
+    if window.CANVAS_TARGET_HEIGHT?
+      @$(".canvas-holder").height(window.CANVAS_TARGET_HEIGHT).width(window.CANVAS_TARGET_HEIGHT)
     @canvas = new Canvas()
     @$(".canvas-holder").html(@canvas.el)
 
     #
     # animation
     #
-    @animation = new Canvas()
+    @animation = new Canvas(show_grid: false)
     @animation_frame = @current_frame
     @$(".animation").html(@animation.el)
     @animation_interval = setInterval =>
@@ -246,7 +305,7 @@ class Editor extends Backbone.View
     # Preview frames
     #
     for frame in @frames
-      canvas = new Canvas(frame: frame)
+      canvas = new Canvas(frame: frame, show_grid: false)
       @preview_canvases.push(canvas)
       @$(".frames").append(canvas.el)
       canvas.render()
@@ -270,6 +329,8 @@ class Editor extends Backbone.View
       max_canvas_height = max_height - @$(".add-drop").height() - @$(".nav").height()
       max_canvas_width  = max_width - @$(".right-side").width()
       target_height = Math.max(280, Math.min(max_canvas_height, max_canvas_width) - 20)
+      # Cache this to make it render faster on back/forward nav.
+      window.CANVAS_TARGET_HEIGHT = target_height
       @$(".canvas-holder").height(target_height).width(target_height)
     setTimeout(resize, 100)
     $(window).on("resize", resize)
@@ -289,15 +350,18 @@ class Editor extends Backbone.View
     @canvas.set_frame(@frames[@current_frame])
     @preview_canvases[@current_frame].$el.addClass("current")
 
-  next_frame: =>
+  next_frame: (event) =>
+    return false if @squelch(event)
     @set_frame (@current_frame + 1) % @frames.length
     return false
 
-  prev_frame: =>
+  prev_frame: (event) =>
+    return false if @squelch(event)
     @set_frame (@current_frame - 1 + @frames.length) % @frames.length
     return false
 
-  add_frame: =>
+  add_frame: (event) =>
+    return false if @squelch(event)
     # Create a copy of the current frame.
     copy = []
     for row in @frames[@current_frame]
@@ -311,7 +375,7 @@ class Editor extends Backbone.View
     # Create a preview element
     preview = new Canvas(frame: copy)
     @preview_canvases.splice(@current_frame + 1, 0, preview)
-    $(@$(".frames .canvas")[@current_frame]).after(preview.el)
+    $(@$(".frames canvas")[@current_frame]).after(preview.el)
     preview.render()
 
     # Set the view to this frame.
@@ -319,7 +383,8 @@ class Editor extends Backbone.View
     @update_url()
     return false
 
-  remove_frame: =>
+  remove_frame: (event) =>
+    return false if @squelch(event)
     @frames.splice(@current_frame, 1)
     preview = @preview_canvases.splice(@current_frame, 1)[0]
     preview.$el.remove()
@@ -330,7 +395,8 @@ class Editor extends Backbone.View
     @update_url()
     return false
 
-  save: =>
+  save: (event) =>
+    return false if @squelch(event)
     $.ajax {
       url: '/save',
       type: 'POST',
@@ -373,7 +439,8 @@ class Editor extends Backbone.View
     if url != window.location.search
       app.navigate("/#{url}", {trigger: false})
 
-  gallery: =>
+  gallery: (event) =>
+    event.preventDefault()
     app.navigate("/", {trigger: true})
     @modal.jqm().jqmHide()
     return false

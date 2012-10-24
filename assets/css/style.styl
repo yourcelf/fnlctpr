@@ -69,36 +69,26 @@ user-select()
     float: left
 
 .canvas-holder
+  width: 240px
+  height: 240px
   position: relative
-
-.canvas
-  height: 100%
-  width: 100%
-  .pixel
-    border: 1px solid #ddd
-    width: 6.25%
-    height: 100%
-    float: left
-    &.active
-      background-color: black
-  .row
+  canvas
     width: 100%
-    height: 6.25%
-    clear: both
+    height: 100%
+    border: 1px solid #ddd
 
 .preview-holder
-  .frames .canvas
+  .frames canvas
     height: 24px
     width: 24px
-  .animation .canvas
+  .animation canvas
     height: 32px
     width: 32px
-  .canvas
+  canvas
     border: 1px solid #ddd
-    .pixel
-      border: none
     &.current
-      background-color: #ffd
+      margin-left: 0.5em
+      outline: 2px solid #f90
 
 .jqmWindow
   display: none
