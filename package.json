@@ -23,7 +23,7 @@
         "jade": "*",
         "markdown": "*",
         "imagemagick": "~0",
-        "pg": "~1"
+        "pg": "*"
     },
     "devDependencies": {
         "mocha": "~1",

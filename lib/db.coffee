@@ -7,10 +7,12 @@ test = (fn) ->
     client.query("SELECT 'fiddlesticks' AS test", fn)
 
 create = (fn) ->
+  fn() if fn?
+  return
   pg.connect config.pg_connection, (err, client) ->
     fn(err) if err
     client.query(
-      "CREATE TABLE IF NOT EXISTS fnlctpr ( id SERIAL, q VARCHAR(2000) )",
+      "CREATE TABLE fnlctpr ( id SERIAL, q VARCHAR(2000) )",
       fn
     )
 

@@ -16,10 +16,14 @@ get_query_param = (key) ->
 
 gallery_template = "
   <div class='gallery'>
+    <h2>Fnl Ct Pr <small><small style='font-weight: normal;'>video editor</small></small></h2>
     <a href='#' class='cta cta-blue new'>New</a>
     <% for (var i = 0; i < gifs.length; i++) { %>
       <a class='gif' href='' data-index='<%= i %>'><img src='<%= gifs[i].gif %>' /></a>
     <% } %>
+  </div>
+  <div style='border-top: 1px solid #eee; margin-top: 1em; padding: 1em;'>
+      <a href='http://github.com/yourcelf/fnlctpr'>github</a>
   </div>
 "
 gif_modal_template = "
