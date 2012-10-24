@@ -3,7 +3,7 @@ PXL = {
   height: 16
   encode: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
   separator: "~"
-  max_num_frames: 5
+  max_num_frames: 16
   output_scale: 2
 }
 PXL.decode = {}

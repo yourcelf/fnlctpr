@@ -17,6 +17,7 @@ describe "database", ->
     # Insert...
     db.put {q: "A"}, (err, result) ->
       expect(err).to.be(null)
+      expect(result.rows[0].id).to.not.be(null)
       # Retrieve...
       db.get {q: "A"}, (err, result) ->
         expect(err).to.be(null)
@@ -26,12 +27,18 @@ describe "database", ->
         db.get {id: id}, (err, result) ->
           expect(result.rows[0].id).to.eql(id)
           expect(result.rows[0].q).to.eql("A")
-          # Remove ...
-          db.remove {id: id}, (err, result) ->
+          # Retrieve another way ...
+          db.list (err, result) ->
             expect(err).to.be(null)
-            # And it's gone!
-            db.get {id: id}, (err, result) ->
-              expect(result.rows.length).to.be(0)
-              done()
-
+            expect(result.rows[0].id).to.eql(id)
+            # Update...
+            db.put {q: "B", id: id}, (err, result) ->
+              expect(result.rows[0].id).to.eql(id)
+              # Remove ...
+              db.remove {id: id}, (err, result) ->
+                expect(err).to.be(null)
+                # And it's gone!
+                db.get {id: id}, (err, result) ->
+                  expect(result.rows.length).to.be(0)
+                  done()
 

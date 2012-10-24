@@ -25,5 +25,9 @@ html(lang="en")
       div#flash
       div#app
 
+    <script type='text/javascript'>
+    != "var GIFS = " + JSON.stringify(gifs)
+    </script>
+
     !=js('frontend')
     include analytics.html

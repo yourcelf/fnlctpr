@@ -26,9 +26,9 @@ put = (query, fn) ->
   pg.connect config.pg_connection, (err, client) ->
     fn(err) if err
     if query.id?
-      client.query("UPDATE fnlctpr SET q = $1 WHERE id = $2 LIMIT 1", [query.q, query.id], fn)
+      client.query("UPDATE fnlctpr SET q = $1 WHERE id = $2 RETURNING id", [query.q, query.id], fn)
     else
-      client.query('INSERT INTO fnlctpr (q) VALUES ($1)', [query.q], fn)
+      client.query('INSERT INTO fnlctpr (q) VALUES ($1) RETURNING id', [query.q], fn)
 
 remove = (query, fn) ->
   pg.connect config.pg_connection, (err, client) ->
@@ -38,6 +38,9 @@ remove = (query, fn) ->
     else
       fn("Error: query.id must be specified.")
 
-list = (query, fn) ->
+list = (fn) ->
+  pg.connect config.pg_connection, (err, client) ->
+    fn(err) if err
+    client.query("SELECT id,q FROM fnlctpr ORDER BY id DESC", fn)
 
 module.exports = { create, get, put, remove, list, test }

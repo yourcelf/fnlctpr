@@ -1,8 +1,9 @@
 // Mixins
+@import "nib"
 @import "normalize.css"
 @import "buttons.css"
+@import "jqModal.css"
 @import "flash.styl"
-@import "nib"
 
 border-box()
   -webkit-box-sizing: border-box
@@ -86,9 +87,22 @@ user-select()
   .canvas
     height: 32px
     width: 32px
-    display: inline-block
     border: 1px solid #ddd
     .pixel
       border: none
     &.current
       background-color: #ffd
+
+.jqmWindow
+  display: none
+  position: fixed
+  top: 17%
+  left: 50%
+  margin-left: -300px
+  width: 600px
+  background-color: #EEE
+  color: #333
+  border: 1px solid black
+  padding: 12px
+.jqmOverlay 
+  background-color: #000
