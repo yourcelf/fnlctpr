@@ -24,6 +24,7 @@ gallery_template = "
   </div>
   <div style='border-top: 1px solid #eee; margin-top: 1em; padding: 1em;'>
       <a href='http://github.com/yourcelf/fnlctpr'>github</a>
+      <a href='http://pxlshp.com'>Inspired by</a>
   </div>
 "
 gif_modal_template = "
@@ -246,7 +247,7 @@ post_save_template = "
       <input size='40' type='text' readonly value='<%= window.location.protocol + '://' + window.location.host + gif %>' />
       <p>
         <a class='cta cta-yellow jqmClose' href='#'>close</a>
-        <a class='cta cta-blue gallery' href='#'>Show gallery</a>
+        <a class='cta cta-blue gallery-link' href='#'>Show gallery</a>
       </p>
     </div>
   </div>
@@ -266,8 +267,8 @@ class Editor extends SquelchView
     'touchstart    .remove-link': 'remove_frame'
     'click           .save-link': 'save'
     'touchstart     a.save-link': 'save'
-    'click             .gallery': 'gallery'
-    'touchstart        .gallery': 'gallery'
+    'click        .gallery-link': 'gallery'
+    'touchstart   .gallery-link': 'gallery'
 
   initialize: (options) ->
     @pxl = options.pxl
