@@ -31,7 +31,7 @@ gif_modal_template = "
   <div class='jqmWindow'>
     <div style='text-align: center;'>
       <img src='<%= gif.gif %>' /><br />
-      <input size='40' readonly value='<%= window.location.protocol + '://' + window.location.host + gif.gif %>' />
+      <input size='40' readonly value='<%= window.location.protocol + '//' + window.location.host + gif.gif %>' />
       <p>
         <a class='cta cta-red edit' href='#' data-index='<%= index %>'>Edit</a>
         <a class='cta cta-yellow fork' href='#' data-index='<%= index %>'>Fork</a>
@@ -244,7 +244,7 @@ post_save_template = "
     <div style='text-align: center;'>
       <p>Here is your gif:</p>
       <p><img src='<%= gif %>' /></p>
-      <input size='40' type='text' readonly value='<%= window.location.protocol + '://' + window.location.host + gif %>' />
+      <input size='40' type='text' readonly value='<%= window.location.protocol + '//' + window.location.host + gif %>' />
       <p>
         <a class='cta cta-yellow jqmClose' href='#'>close</a>
         <a class='cta cta-blue gallery-link' href='#'>Show gallery</a>
